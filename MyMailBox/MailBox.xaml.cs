@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using MailKit;
+using MyMailBox.Models;
 
 namespace MyMailBox
 {
@@ -20,9 +22,52 @@ namespace MyMailBox
     /// </summary>
     public partial class MailBox : UserControl
     {
-        public MailBox()
+        private Account account;
+        private List<MailPreview> listMailPreview = null;
+
+        public MailBox(Account account)
         {
             InitializeComponent();
+            this.account = account;
+        }
+
+        private void showAllEmail(int max = 300)
+        {
+            //ListMailPreview.Items.Clear();
+            if (!account.connection())
+            {
+                System.Diagnostics.Debug.WriteLine("Not connected ERROR");
+                return;
+            }
+            if (this.listMailPreview == null)
+            {
+                this.listMailPreview = account.getAllMailPreview();
+            }
+            ListMailPreview.ItemsSource = this.listMailPreview;
+        }
+
+        public void Show()
+        {
+            showAllEmail();
+        }
+
+        public String getMailBoxName()
+        {
+            return this.account.getEmail();
+        }
+
+        public int getID()
+        {
+            return account.getID();
+        }
+
+        private void DataGridRow_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            DataGridRow row = sender as DataGridRow;
+            MailPreview mailPreview = row.Item as MailPreview;
+            Mail mail = account.getEmailById(mailPreview.getUniqueID());
+            MailWindow mailWindow = new MailWindow(mail);
+            mailWindow.Show();
         }
     }
 }

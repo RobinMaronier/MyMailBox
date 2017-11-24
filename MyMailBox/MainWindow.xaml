@@ -6,24 +6,32 @@
         xmlns:local="clr-namespace:MyMailBox"
         mc:Ignorable="d"
         Title="MainWindow" 
-        MinHeight="1000"
-        MinWidth="1000"
+        Width="Auto"
+        Height="Auto"
         SizeToContent="WidthAndHeight">
 
-    <TabControl TabStripPlacement="Left">
-        <TabItem Header="MailBox">
-            <local:MailBox />
+    <TabControl TabStripPlacement="Top" SelectionChanged="TabControl_SelectionChanged">
+        <TabItem
+            Header="MailBox"
+            x:Name="MainBoxItem">
+            <local:MailBoxContainer x:Name="MailBoxContainerActivity" />
         </TabItem>
-        <TabItem Header="Contact">
+        <TabItem
+            Header="Contact"
+            x:Name="ContactItem">
             <local:Contact />
         </TabItem>
 
-        <TabItem Header="Calendrier">
+        <TabItem
+            Header="Calendrier"
+            x:Name="CalendarItem">
             <local:Calendar />
         </TabItem>
 
-        <TabItem Header="Paramètres">
-            <local:Settings />
+        <TabItem
+            Header="Paramètres"
+            x:Name="SettingsItem">
+            <local:Settings x:Name="SettingsActivity"/>
         </TabItem>
     </TabControl>
 </Window>

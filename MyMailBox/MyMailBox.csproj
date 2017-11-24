@@ -63,7 +63,9 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Security" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -94,7 +96,15 @@
     <Compile Include="MailBox.xaml.cs">
       <DependentUpon>MailBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MailBoxContainer.xaml.cs">
+      <DependentUpon>MailBoxContainer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MailWindow.xaml.cs">
+      <DependentUpon>MailWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\Mail.cs" />
+    <Compile Include="Models\MailPreview.cs" />
     <Compile Include="Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
@@ -111,6 +121,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="MailBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MailBoxContainer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MailWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

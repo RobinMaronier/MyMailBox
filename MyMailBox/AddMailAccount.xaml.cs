@@ -25,10 +25,23 @@ namespace MyMailBox
         private Account inCreationAccount;
 
         private int stepAddAccount = 0;
+        private Settings resultClass;
 
-        public AddMailAccount()
+        public AddMailAccount(Settings settings)
         {
             this.InitializeComponent();
+            resultClass = settings;
+        }
+
+        public AddMailAccount(Settings settings, Account account)
+        {
+            this.InitializeComponent();
+            resultClass = settings;
+            inCreationAccount = account;
+            goNextStep(1);
+            goNextStep(2);
+            goNextStep(3);
+            fillStep3Information(true);
         }
 
         private void NextActionAddAccount(object sender, RoutedEventArgs e)
@@ -51,9 +64,16 @@ namespace MyMailBox
             }
         }
 
-        private void goNextStep()
+        private void goNextStep(int stepNumber = -1)
         {
-            stepAddAccount++;
+            if (stepNumber <= 0)
+            {
+                stepAddAccount++;
+            }
+            else
+            {
+                stepAddAccount = stepNumber;
+            }
             switch (stepAddAccount)
             {
                 case 1:
@@ -84,7 +104,7 @@ namespace MyMailBox
                 //fullNameBox.Focus(FocusState.Programmatic);
                 wrongField = true;
             }
-            if (newAccount.password == String.Empty)
+            if (newAccount.getPassword() == String.Empty)
             {
                 passwordUserBox.BorderBrush = new SolidColorBrush(Colors.Red);
                 //passwordBox.Focus(FocusState.Programmatic);
@@ -113,7 +133,7 @@ namespace MyMailBox
         private Boolean doStepTwo()
         {
 
-            Boolean result = tryToConnectWith(inCreationAccount, "imap");
+            Boolean result = inCreationAccount.testConnection();
 
             if (result == false)
             {
@@ -131,45 +151,6 @@ namespace MyMailBox
 
         }
 
-        private Boolean tryToConnectWith(Account thatAccount, String type)
-        {
-            using (var client = new ImapClient())
-            {
-                String server = thatAccount.getServer(type);
-                int port = thatAccount.port;
-                Boolean useSSL = thatAccount.useSSL;
-
-                try
-                {
-                    client.Connect(server, port, useSSL);
-                }
-                catch (MailKit.ServiceNotConnectedException)
-                {
-                    System.Diagnostics.Debug.WriteLine("Error: Connection error");
-                    return false;
-                }
-                catch (System.Exception)
-                {
-                    System.Diagnostics.Debug.WriteLine("Error: Connection error");
-                    return false;
-                }
-
-                var identity = thatAccount.getIdentity();
-
-                try
-                {
-                    client.AuthenticationMechanisms.Remove("XOAUTH2");
-                    client.Authenticate(identity, thatAccount.password);
-                }
-                catch (MailKit.Net.Imap.ImapProtocolException)
-                {
-                    System.Diagnostics.Debug.WriteLine("Error: Authentificate error");
-                    return false;
-                }
-            }
-            return true;
-        }
-
         private void fillStep3Information(Boolean isAuthentificate)
         {
             NextButton.Visibility = Visibility.Collapsed;
@@ -179,17 +160,12 @@ namespace MyMailBox
                 TitleStep3.Text = "Impossible de se connecter au serveur automatiquement, aide moi !";
             }
             identityConfirmBox.Text = inCreationAccount.getIdentity();
-            serverConfirmBox.Text = inCreationAccount.getServer("imap");
-            portConfirmBox.Text = inCreationAccount.port + "";
-            if (inCreationAccount.useSSL)
-            {
-                SSLConfirmCheck.IsChecked = true;
-            }
-            else
-            {
-                SSLConfirmCheck.IsChecked = false;
-            }
-            passwordConfirmBox.Password = inCreationAccount.password;
+            serverConfirmBox.Text = inCreationAccount.getServer();
+            portConfirmBox.Text = inCreationAccount.getPort() + "";
+            SSLConfirmCheck.IsChecked = inCreationAccount.getUseSSL();
+            passwordRememberConfirmCheck.IsChecked = inCreationAccount.rememberPassword;
+            passwordConfirmBox.Password = inCreationAccount.getPassword() ;
+
         }
 
         private void CancelActionAddAccount(object sender, RoutedEventArgs e)
@@ -207,10 +183,8 @@ namespace MyMailBox
             String password = passwordConfirmBox.Password;
             Boolean rememberPassword = rememberPasswordBox.IsChecked.Value;
 
-            Account newTryAccount = new Account(fullName, email, password, rememberPassword);
-            newTryAccount.useSSL = SSLCheck;
-            newTryAccount.port = port;
-            if (tryToConnectWith(newTryAccount, "imap") == false)
+            Account newTryAccount = new Account(fullName, email, password, rememberPassword, SSLCheck, port);
+            if (newTryAccount.testConnection() == false)
             {
                 showMessageCantConnect();
                 TitleStep3.Text = "Impossible de se connecter au serveur automatiquement, aide moi !";
@@ -228,7 +202,8 @@ namespace MyMailBox
 
         private void finalValidateClick(object sender, RoutedEventArgs e)
         {
-            /*Save new account*/
+            Properties.Settings.Default.UniqueAccountID++;
+            this.resultClass.saveNewMailAccount(new Account(inCreationAccount, Properties.Settings.Default.UniqueAccountID));
             this.Close();
         }
     }
