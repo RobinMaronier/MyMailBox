@@ -45,5 +45,17 @@ namespace MyMailBox.Properties {
                 this["UniqueAccountID"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.11")]
+        public float Version {
+            get {
+                return ((float)(this["Version"]));
+            }
+            set {
+                this["Version"] = value;
+            }
+        }
     }
 }

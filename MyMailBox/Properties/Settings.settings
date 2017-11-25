@@ -8,5 +8,8 @@
     <Setting Name="UniqueAccountID" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
+    <Setting Name="Version" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">0.11</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
