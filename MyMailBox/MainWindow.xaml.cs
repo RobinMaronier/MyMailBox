@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MyMailBox.Models;
+using MyMailBox.Utils;
 
 namespace MyMailBox
 {
@@ -24,10 +25,12 @@ namespace MyMailBox
         private Calendar calendar;
         private Settings settings;
         private List<Account> listAccounts = null;
+        private const String settingsSeparateValue = ",";
 
         public MainWindow()
         {
             this.InitializeComponent();
+            ThreadInvoker.Instance.InitDispacter();
             //resetUserSettings();
             this.getAllViews();
             this.getAllAccount();
@@ -42,7 +45,7 @@ namespace MyMailBox
                 listAccounts = new List<Account>();
                 foreach (String stringAccount in listStringAccounts)
                 {
-                    listAccounts.Add(new Account(stringAccount.Split('%')));
+                    listAccounts.Add(new Account(stringAccount.Split(settingsSeparateValue[0])));
                 }
             }
         }
@@ -56,6 +59,7 @@ namespace MyMailBox
         private void settingsAllViews()
         {
             this.settings.setMainWindow(this);
+            this.settings.setSettingsSeparateValue(settingsSeparateValue);
             this.settings.setNewListAccount(listAccounts);
             this.mailBoxContainer.setNewListAccount(listAccounts);
         }

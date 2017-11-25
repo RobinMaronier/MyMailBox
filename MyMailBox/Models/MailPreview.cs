@@ -13,18 +13,34 @@ namespace MyMailBox.Models
         public String mailFrom { get; set; }
         public String date { get; set; }
         private UniqueId uniqueId;
+        private List<Address> listFrom = null;
 
-        public MailPreview(String mailObject, String mailFrom, String date, UniqueId index)
-            : this(mailObject, mailFrom, date)
+        public MailPreview(String mailObject, List<Address> listFrom, String date, UniqueId index)
+            : this(mailObject, listFrom, date)
         {
             this.uniqueId = index;
         }
 
-        protected MailPreview(String mailObject, String mailFrom, String date)
+        protected MailPreview(String mailObject, List<Address> listFrom, String date)
         {
             this.mailObject = mailObject;
-            this.mailFrom = mailFrom;
+            this.listFrom = listFrom;
+            this.mailFrom = getAddressStringFromAddressList(listFrom);
             this.date = date;
+        }
+
+        protected String getAddressStringFromAddressList(List<Address> listAddress)
+        {
+            String allAddress = String.Empty;
+            foreach(Address address in listAddress)
+            {
+                if (allAddress != String.Empty)
+                {
+                    allAddress += ", ";
+                }
+                allAddress += address.name + " <" + address.address + ">";
+            }
+            return allAddress;
         }
 
         public UniqueId getUniqueID()

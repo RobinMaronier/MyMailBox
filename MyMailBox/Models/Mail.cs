@@ -9,13 +9,18 @@ namespace MyMailBox.Models
     public class Mail : MailPreview
     {
         public String body = String.Empty;
-        public List<String> listTo;
+        public List<Address> listTo = null;
 
-        public Mail(String body, List<String> listTo, String subject, String from, String date)
-            : base(subject, from, date)
+        public Mail(MailSettings mailSettings, MailContent mailContent)
+            : base(mailContent.subject, mailContent.listFrom, mailSettings.date)
         {
-            this.body = body;
-            this.listTo = listTo;
+            this.body = mailContent.body;
+            this.listTo = mailContent.listTo;
+        }
+
+        public String getStringListTo()
+        {
+            return getAddressStringFromAddressList(listTo);
         }
     }
 }

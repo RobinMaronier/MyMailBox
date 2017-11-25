@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MyMailBox.Models;
+using MyMailBox.Utils;
 
 namespace MyMailBox
 {
@@ -40,7 +41,7 @@ namespace MyMailBox
         public void deleteMailBox(Account account)
         {
             MailBox mailBoxToDelete = null;
-            foreach(MailBox mailBox in this.listMailBox)
+            foreach (MailBox mailBox in this.listMailBox)
             {
                 if (mailBox.getID() == account.getID())
                 {
@@ -79,10 +80,11 @@ namespace MyMailBox
             {
                 AccountChoiceComboBox.Items.Add(mailBox.getMailBoxName());
             }
-            if (currentMailBox == null && this.listMailBox.Count > 0 )
+            if (currentMailBox == null && this.listMailBox.Count > 0)
             {
                 AccountChoiceComboBox.SelectedIndex = 0;
-            } else if (this.listMailBox.Count > 0)
+            }
+            else if (this.listMailBox.Count > 0)
             {
                 AccountChoiceComboBox.SelectedIndex = listMailBox.IndexOf(currentMailBox);
             }
@@ -97,7 +99,28 @@ namespace MyMailBox
             GridMailBoxContainer.Children.Add(mailbox);
             mailbox.SetValue(Grid.RowProperty, 1);
             currentMailBox = mailbox;
-            mailbox.Show();
+            putLoadingSpinner(mailbox);
+            ThreadInvoker.Instance.RunByNewThread(() =>
+            {
+                mailbox.Show();
+                ThreadInvoker.Instance.RunByUiThread(() =>
+                {
+                    removeLoadingSpinner(mailbox);
+                });
+            });
+            //mailbox.Show();
+        }
+
+        private void putLoadingSpinner(MailBox mailbox)
+        {
+            mailbox.Visibility = Visibility.Collapsed;
+            LoadingSpinnerView.Visibility = Visibility.Visible;
+        }
+
+        private void removeLoadingSpinner(MailBox mailbox)
+        {
+            mailbox.Visibility = Visibility.Visible;
+            LoadingSpinnerView.Visibility = Visibility.Collapsed;
         }
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

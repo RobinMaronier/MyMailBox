@@ -27,6 +27,9 @@ namespace MyMailBox
         private int stepAddAccount = 0;
         private Settings resultClass;
 
+        private Boolean isUpdateAccount = false;
+        private int updateAccountId = -1;
+
         public AddMailAccount(Settings settings)
         {
             this.InitializeComponent();
@@ -36,11 +39,12 @@ namespace MyMailBox
         public AddMailAccount(Settings settings, Account account)
         {
             this.InitializeComponent();
+            isUpdateAccount = true;
             resultClass = settings;
             inCreationAccount = account;
+            updateAccountId = account.getID();
             goNextStep(1);
             goNextStep(2);
-            goNextStep(3);
             fillStep3Information(true);
         }
 
@@ -100,20 +104,17 @@ namespace MyMailBox
 
             if (newAccount.fullName == String.Empty)
             {
-                 nameUserBox.BorderBrush = new SolidColorBrush(Colors.Red);
-                //fullNameBox.Focus(FocusState.Programmatic);
+                nameUserBox.BorderBrush = new SolidColorBrush(Colors.Red);
                 wrongField = true;
             }
             if (newAccount.getPassword() == String.Empty)
             {
                 passwordUserBox.BorderBrush = new SolidColorBrush(Colors.Red);
-                //passwordBox.Focus(FocusState.Programmatic);
                 wrongField = true;
             }
             if (newAccount.getEmail() == String.Empty)
             {
                 emailUserBox.BorderBrush = new SolidColorBrush(Colors.Red);
-                //emailBox.Focus(FocusState.Programmatic);
                 wrongField = true;
             }
             if (!newAccount.getEmail().Contains("@"))
@@ -141,14 +142,6 @@ namespace MyMailBox
             }
             fillStep3Information(result);
             return true;
-
-            /*var inbox = client.Inbox;
-            inbox.Open(FolderAccess.ReadOnly);
-
-            Console.WriteLine("Total messages: {0}", inbox.Count);
-            Console.WriteLine("Recent messages: {0}", inbox.Recent);*/
-
-
         }
 
         private void fillStep3Information(Boolean isAuthentificate)
@@ -165,7 +158,7 @@ namespace MyMailBox
             SSLConfirmCheck.IsChecked = inCreationAccount.getUseSSL();
             passwordRememberConfirmCheck.IsChecked = inCreationAccount.rememberPassword;
             passwordConfirmBox.Password = inCreationAccount.getPassword() ;
-
+            nameConfirmBox.Text = inCreationAccount.fullName;
         }
 
         private void CancelActionAddAccount(object sender, RoutedEventArgs e)
@@ -178,10 +171,10 @@ namespace MyMailBox
             TitleStep3.Text = "Tentative de connexion ...";
             String email = identityConfirmBox.Text + "@" + serverConfirmBox.Text.Substring(serverConfirmBox.Text.IndexOf(".") + 1);
             int port = Int32.Parse(portConfirmBox.Text);
-            String fullName = "ttt"; //TODO
+            String fullName = nameConfirmBox.Text;
             Boolean SSLCheck = SSLConfirmCheck.IsChecked.Value;
             String password = passwordConfirmBox.Password;
-            Boolean rememberPassword = rememberPasswordBox.IsChecked.Value;
+            Boolean rememberPassword = passwordRememberConfirmCheck.IsChecked.Value;
 
             Account newTryAccount = new Account(fullName, email, password, rememberPassword, SSLCheck, port);
             if (newTryAccount.testConnection() == false)
@@ -191,6 +184,7 @@ namespace MyMailBox
             }
             else
             {
+                inCreationAccount = newTryAccount;
                 goNextStep();
             }
         }
@@ -202,8 +196,14 @@ namespace MyMailBox
 
         private void finalValidateClick(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.UniqueAccountID++;
-            this.resultClass.saveNewMailAccount(new Account(inCreationAccount, Properties.Settings.Default.UniqueAccountID));
+            if (isUpdateAccount)
+            {
+                this.resultClass.updateAccountFinished(new Account(inCreationAccount, updateAccountId));
+            } else
+            {
+                Properties.Settings.Default.UniqueAccountID++;
+                this.resultClass.saveNewMailAccount(new Account(inCreationAccount, Properties.Settings.Default.UniqueAccountID));
+            }
             this.Close();
         }
     }

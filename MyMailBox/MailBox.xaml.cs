@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MailKit;
 using MyMailBox.Models;
+using MyMailBox.Utils;
 
 namespace MyMailBox
 {
@@ -31,19 +32,21 @@ namespace MyMailBox
             this.account = account;
         }
 
-        private void showAllEmail(int max = 300)
+        private void showAllEmail(int max = 300, Boolean forceUpdate = true)
         {
-            //ListMailPreview.Items.Clear();
             if (!account.connection())
             {
                 System.Diagnostics.Debug.WriteLine("Not connected ERROR");
                 return;
             }
-            if (this.listMailPreview == null)
+            if (forceUpdate || this.listMailPreview == null)
             {
                 this.listMailPreview = account.getAllMailPreview();
             }
-            ListMailPreview.ItemsSource = this.listMailPreview;
+            ThreadInvoker.Instance.RunByUiThread(() =>
+            {
+                ListMailPreview.ItemsSource = this.listMailPreview;
+            });
         }
 
         public void Show()

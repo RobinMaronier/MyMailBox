@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MailKit;
+using MimeKit;
 using MailKit.Net.Imap;
 using MailKit.Search;
 
@@ -235,7 +236,7 @@ namespace MyMailBox.Models
             
             foreach (var summary in inbox.Fetch(0, -1, MessageSummaryItems.Full | MessageSummaryItems.UniqueId))
             {
-                String from = summary.Envelope.Sender[0].Name;
+                List<Address> from = getNameFromInternetAddressList(summary.Envelope.From);
                 String date = getDateToString(summary.Envelope.Date);
                 listMails.Add(new MailPreview(summary.Envelope.Subject, from, date, summary.UniqueId));
             }
@@ -246,8 +247,31 @@ namespace MyMailBox.Models
         public Mail getEmailById(UniqueId id)
         {
             var message = this.client.Inbox.GetMessage(id);
-            Mail newMail = new Mail(message.HtmlBody, null, message.Subject, null, getDateToString(message.Date));
+            String body = String.Empty;
+            if (message.HtmlBody != null)
+            {
+                body = " <meta http-equiv='Content-Type' content='text/html;charset=UTF-8'>" + message.HtmlBody;
+            }
+            else if (message.TextBody != null)
+            {
+                body = message.TextBody;
+            }
+            Mail newMail = new Mail(
+                new MailSettings(getNameFromInternetAddressList(message.ResentTo), getDateToString(message.Date)),
+                new MailContent(body, message.Subject, getNameFromInternetAddressList(message.From), getNameFromInternetAddressList(message.To)));
             return newMail;
+        }
+
+        private List<Address> getNameFromInternetAddressList(InternetAddressList internetAddressList)
+        {
+            List<Address> list = new List<Address>();
+
+            List<MailboxAddress> listAddress = internetAddressList.Mailboxes.ToList();
+            foreach(MailboxAddress address in listAddress)
+            {
+                list.Add(new Address(address.Name, address.Address));
+            }
+            return list;
         }
 
         private String getDateToString(DateTimeOffset? dateTime)

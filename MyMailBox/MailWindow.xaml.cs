@@ -26,7 +26,7 @@ namespace MyMailBox
 
             FromBlock.Text = mail.mailFrom;
             SubjectBlock.Text = mail.mailObject;
-            ToBlock.Text = "null";
+            ToBlock.Text = mail.getStringListTo();
             MailContentWebView.NavigateToString(mail.body);
         }
     }

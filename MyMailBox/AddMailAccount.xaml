@@ -97,6 +97,17 @@
             <TextBlock
                 VerticalAlignment="Center"
                 Margin="5, 15, 5, 5"
+                Text="Ton nom" />
+
+            <TextBox
+                x:Name="nameConfirmBox"
+                Margin="5"
+                Background="White"
+                BorderBrush="#0078D7" />
+            
+            <TextBlock
+                VerticalAlignment="Center"
+                Margin="5, 15, 5, 5"
                 Text="Ton identité sur le serveur :" />
 
             <TextBox
